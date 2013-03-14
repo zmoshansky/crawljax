@@ -92,3 +92,11 @@
     	setupController: function(controller, model) { 
     		this.controllerFor('history_list').set('content', App.CrawlHistory.findAll()); }
     });
+    
+    App.HistoryRoute = Ember.Route.extend({
+    	activate: function() { 
+    		setTimeout(function(){ 
+    			socket.sendMsg('start log'); }, 500); },
+    	deactivate: function() { 
+    		socket.sendMsg('stop log'); }
+    });

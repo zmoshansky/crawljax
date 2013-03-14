@@ -43,14 +43,14 @@
 	<div class="span3">
 		{{view App.BreadcrumbView}}
         <div class="well sidebar-nav">{{view App.SideNavView}}</div>
-		{{! Comment out for now
         <div class="well sidebar-nav">
             <ul class="nav nav-list">
           	  	<li class="nav-header">Crawl Execution Queue</li>
           	  	<li class="divider"></li>
           	  	<li class="nav-header">Executor Status</li>
+				<li id="msgPanel"></li>
           	</ul>
-        </div> }}
+        </div> 
     </div> 
 	</script>
 
@@ -276,7 +276,7 @@
 	
 	<script type="text/x-handlebars" data-template-name="history">
 	<div class="span9">
-		Run Time Output 
+		<div id="logPanel"></div>
 	</div><!--/span-->
 	</script>
 
@@ -289,5 +289,6 @@
     <script type="text/javascript" src="js/views.js"></script>
     <script type="text/javascript" src="js/controllers.js"></script>
     <script type="text/javascript" src="js/validation.js"></script>
+    <script type="text/javascript" src="js/socket.js"></script>
 </body>
 </html>

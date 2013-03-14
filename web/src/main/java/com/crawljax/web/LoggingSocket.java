@@ -22,8 +22,6 @@ public class LoggingSocket extends WebSocketAdapter {
 		LOG.info("Socket connected!");
 		super.onWebSocketConnect(session);
 		sendText("Welcome to this socket @ " + new Date());
-		sendLogFile();
-		appender = new SocketLogAppender(this);
 	}
 
 	private void sendLogFile() {
@@ -33,7 +31,9 @@ public class LoggingSocket extends WebSocketAdapter {
 		if (log.exists()) {
 			try {
 				LOG.debug("Reading the logfile");
-				String asString = Files.toString(log, Charsets.UTF_8);
+				String asString =
+				        Files.toString(log, Charsets.UTF_8).replace(
+				                System.getProperty("line.separator"), "<br><br>");
 				LOG.debug("Sending the log file");
 				sendText(asString);
 			} catch (IOException e) {
@@ -52,6 +52,14 @@ public class LoggingSocket extends WebSocketAdapter {
 	@Override
 	public void onWebSocketText(String message) {
 		LOG.info("Received text: {}", message);
+
+		if (message.equals("start log")) {
+			sendLogFile();
+			appender = new SocketLogAppender(this);
+		}
+		if (message.equals("stop log")) {
+			appender.stop();
+		}
 	}
 
 	public void sendText(String text) {
