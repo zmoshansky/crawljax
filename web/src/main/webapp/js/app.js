@@ -94,9 +94,12 @@
     });
     
     App.HistoryRoute = Ember.Route.extend({
-    	activate: function() { 
+    	activate: function() {
+    		var controller = this.controllerFor('history');
     		setTimeout(function(){ 
-    			socket.sendMsg('start log'); }, 500); },
+    			socket.sendMsg('startlog-' + controller.get('id')); }, 500); },
     	deactivate: function() { 
-    		socket.sendMsg('stop log'); }
+    		socket.sendMsg('stoplog'); },
+    	serialize: function(object) { return { id: object.id }; }
+        //deserialize: function(params) { return App.CrawlHistory.find(params.id); }
     });

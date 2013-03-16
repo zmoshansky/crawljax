@@ -24,10 +24,10 @@ public class LoggingSocket extends WebSocketAdapter {
 		sendText("Welcome to this socket @ " + new Date());
 	}
 
-	private void sendLogFile() {
+	private void sendLogFile(String crawlId) {
 		File log =
 		        new File(System.getProperty("user.home") + File.separator + "crawljax"
-		                + File.separator + "crawljax.log");
+		                + File.separator + crawlId + File.separator + "crawl.log");
 		if (log.exists()) {
 			try {
 				LOG.debug("Reading the logfile");
@@ -53,11 +53,11 @@ public class LoggingSocket extends WebSocketAdapter {
 	public void onWebSocketText(String message) {
 		LOG.info("Received text: {}", message);
 
-		if (message.equals("start log")) {
-			sendLogFile();
+		if (message.startsWith("startlog")) {
+			sendLogFile(message.split("-")[1]);
 			appender = new SocketLogAppender(this);
 		}
-		if (message.equals("stop log")) {
+		if (message.startsWith("stoplog")) {
 			appender.stop();
 		}
 	}

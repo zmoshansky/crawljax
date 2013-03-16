@@ -90,7 +90,7 @@ public class WorkDirManager {
 		File[] recordFiles = outputFolder.listFiles();
 		if (recordFiles != null) {
 			for (File f : recordFiles) {
-				if (f.isDirectory()) {
+				if (f.isDirectory() && !f.getName().equals("general")) {
 					CrawlRecord c = loadRecord(new File(f, "crawl.json"));
 					records.add(0, c);
 				}

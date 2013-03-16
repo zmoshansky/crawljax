@@ -11,18 +11,26 @@
 
 
 	<logger name="com.crawljax.web" level="INFO" />
-
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>${user.home}/crawljax/crawljax.log</file>
-		<append>true</append>
-		<encoder>
-			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{46} \(%L\) - %msg%n</pattern>
-		</encoder>
-	</appender>
+	
+	<appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <discriminator>
+      <key>crawl_record</key>
+      <defaultValue>general</defaultValue>
+    </discriminator>
+    <sift>
+      <appender name="FILE-${crawl_record}" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/crawljax/${crawl_record}/crawl.log</file>
+        <append>true</append>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+          <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{46} \(%L\) - %msg%n</pattern>
+        </layout>
+      </appender>
+    </sift>
+  </appender>
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
+		<appender-ref ref="SIFT" />
 	</root>
 
 </configuration>

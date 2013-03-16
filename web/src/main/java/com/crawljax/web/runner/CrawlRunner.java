@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.MDC;
+
 import com.crawljax.condition.Condition;
 import com.crawljax.condition.JavaScriptCondition;
 import com.crawljax.condition.NotRegexCondition;
@@ -74,6 +76,7 @@ public class CrawlRunner {
 		@Override
 		public void run() {
 			Date timestamp = null;
+			MDC.put("crawl_record", Integer.toString(crawlId));
 			try {
 				CrawlRecord record = crawlRecords.findByID(crawlId);
 				Configuration config = configurations.findByID(record.getConfigurationId());
@@ -191,6 +194,8 @@ public class CrawlRunner {
 			} catch (Exception e) {
 				e.printStackTrace();
 				pool.shutdown();
+			} finally {
+				MDC.remove("crawl_record");
 			}
 		}
 
