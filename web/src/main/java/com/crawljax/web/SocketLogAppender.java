@@ -11,12 +11,13 @@ public class SocketLogAppender extends UnsynchronizedAppenderBase<ILoggingEvent>
 	private LoggingSocket socket;
 	private ch.qos.logback.classic.Logger rootLogger;
 
-	public SocketLogAppender(LoggingSocket socket) {
+	public SocketLogAppender(LoggingSocket socket, String crawlId) {
 		this.socket = socket;
 
 		rootLogger =
 		        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 		setContext(rootLogger.getLoggerContext());
+		this.addFilter(new SocketLogFilter(crawlId));
 		this.start();
 		rootLogger.addAppender(this);
 	}
@@ -28,8 +29,10 @@ public class SocketLogAppender extends UnsynchronizedAppenderBase<ILoggingEvent>
 
 	@Override
 	public void stop() {
-		rootLogger.detachAppender(this);
-		super.stop();
+		if (rootLogger.isAttached(this)) {
+			rootLogger.detachAppender(this);
+			super.stop();
+		}
 	}
 
 }

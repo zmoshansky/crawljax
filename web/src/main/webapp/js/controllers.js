@@ -96,3 +96,7 @@
     	}.property('startTime'),
     	configURL: function() { return '#/' + this.get('configurationId'); }.property('configurationId')
     });
+    
+    App.HistoryController = Ember.Controller.extend({
+    	needs: ['application']
+    });

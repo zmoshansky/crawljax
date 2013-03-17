@@ -11,7 +11,7 @@
    		this.route("new");
    		this.resource("about");
    		this.resource("history_list", {path: "/history"}, function() {
-   			this.resource("history", {path: "/:id"})
+   			this.resource("history", {path: "/:id"});
    		});
    	});
 
@@ -95,10 +95,14 @@
     
     App.HistoryRoute = Ember.Route.extend({
     	activate: function() {
+    		this.controllerFor('history_list').set('breadcrumb', [App.Link.create({text: "Home", target: "#"}), 
+    		                                                      App.Link.create({text: "History", target: "#/history"}),
+    		                                                      App.Link.create({text: "Crawl"})]);
     		var controller = this.controllerFor('history');
-    		setTimeout(function(){ 
-    			socket.sendMsg('startlog-' + controller.get('id')); }, 500); },
-    	deactivate: function() { 
+    		setTimeout(function(){ socket.sendMsg('startlog-' + controller.get('content.id')); }, 0); },
+    	deactivate: function() {
+    		this.controllerFor('history_list').set('breadcrumb', [App.Link.create({text: "Home", target: "#"}), 
+    		                                                      App.Link.create({text: "History"})]);
     		socket.sendMsg('stoplog'); },
     	serialize: function(object) { return { id: object.id }; }
         //deserialize: function(params) { return App.CrawlHistory.find(params.id); }

@@ -40,7 +40,7 @@ $(document).ready(function() {
               }
               try{
                   socket.send(text);
-                  message('<p class="event">Sent: '+text)
+                  message('<p class="event">Sent: '+text);
 
               } catch(exception){
                  message('<p class="warning">');

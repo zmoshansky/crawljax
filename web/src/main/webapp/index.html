@@ -276,6 +276,9 @@
 	
 	<script type="text/x-handlebars" data-template-name="history">
 	<div class="span9">
+		<ul class="nav nav-tabs">
+		{{#view App.NavView route='history_list.history' }}<a href='#' {{action moveTo view.route }}>Log</a>{{/view}}
+		</ul>
 		<div id="logPanel"></div>
 	</div><!--/span-->
 	</script>

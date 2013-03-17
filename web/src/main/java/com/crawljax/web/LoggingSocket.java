@@ -54,8 +54,9 @@ public class LoggingSocket extends WebSocketAdapter {
 		LOG.info("Received text: {}", message);
 
 		if (message.startsWith("startlog")) {
-			sendLogFile(message.split("-")[1]);
-			appender = new SocketLogAppender(this);
+			String crawlId = message.split("-")[1];
+			sendLogFile(crawlId);
+			appender = new SocketLogAppender(this, crawlId);
 		}
 		if (message.startsWith("stoplog")) {
 			appender.stop();
