@@ -2,7 +2,6 @@ package com.crawljax.web;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
@@ -21,7 +20,6 @@ public class LoggingSocket extends WebSocketAdapter {
 	public void onWebSocketConnect(Session session) {
 		LOG.info("Socket connected!");
 		super.onWebSocketConnect(session);
-		sendText("Welcome to this socket @ " + new Date());
 	}
 
 	private void sendLogFile(String crawlId) {
@@ -30,10 +28,12 @@ public class LoggingSocket extends WebSocketAdapter {
 		                + File.separator + crawlId + File.separator + "crawl.log");
 		if (log.exists()) {
 			try {
-				LOG.debug("Reading the logfile");
+				LOG.debug("Reading the log file");
 				String asString =
-				        Files.toString(log, Charsets.UTF_8).replace(
-				                System.getProperty("line.separator"), "<br><br>");
+				        "<p>"
+				                + Files.toString(log, Charsets.UTF_8).replace(
+				                        System.getProperty("line.separator"), "</p><p>");
+				asString = asString.substring(0, asString.length() - 4); // Remove last <p>
 				LOG.debug("Sending the log file");
 				sendText(asString);
 			} catch (IOException e) {

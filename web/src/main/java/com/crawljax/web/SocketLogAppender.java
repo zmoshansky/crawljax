@@ -1,5 +1,8 @@
 package com.crawljax.web;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +27,10 @@ public class SocketLogAppender extends UnsynchronizedAppenderBase<ILoggingEvent>
 
 	@Override
 	protected void append(ILoggingEvent eventObject) {
-		socket.sendText(eventObject.toString());
+		SimpleDateFormat s = new SimpleDateFormat("HH:mm:ss.SSS");
+		socket.sendText(s.format(new Date(eventObject.getTimeStamp())) + " ["
+		        + eventObject.getThreadName() + "] " + eventObject.getLevel() + " "
+		        + eventObject.getLoggerName() + " - " + eventObject.getFormattedMessage());
 	}
 
 	@Override

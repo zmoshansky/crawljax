@@ -22,7 +22,7 @@
         <file>${user.home}/crawljax/${crawl_record}/crawl.log</file>
         <append>true</append>
         <layout class="ch.qos.logback.classic.PatternLayout">
-          <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{46} \(%L\) - %msg%n</pattern>
+          <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{46} - %msg%n</pattern>
         </layout>
       </appender>
     </sift>
