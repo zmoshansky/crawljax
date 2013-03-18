@@ -19,6 +19,7 @@ public class LoggingSocket extends WebSocketAdapter {
 	@Override
 	public void onWebSocketConnect(Session session) {
 		LOG.info("Socket connected!");
+		LogWebSocketServlet.sockets.add(this);
 		super.onWebSocketConnect(session);
 	}
 
@@ -30,7 +31,7 @@ public class LoggingSocket extends WebSocketAdapter {
 			try {
 				LOG.debug("Reading the log file");
 				String asString =
-				        "<p>"
+				        "log-<p>"
 				                + Files.toString(log, Charsets.UTF_8).replace(
 				                        System.getProperty("line.separator"), "</p><p>");
 				asString = asString.substring(0, asString.length() - 4); // Remove last <p>
@@ -46,6 +47,7 @@ public class LoggingSocket extends WebSocketAdapter {
 	@Override
 	public void onWebSocketClose(int statusCode, String reason) {
 		LOG.info("Socket disconnected with status code {} reason: {}", statusCode, reason);
+		LogWebSocketServlet.sockets.remove(this);
 		appender.stop();
 	}
 

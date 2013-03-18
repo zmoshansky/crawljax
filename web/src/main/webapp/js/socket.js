@@ -22,12 +22,12 @@ $(document).ready(function() {
               }
 
               socket.onmessage = function(msg){
-             	 log('<p>'+msg.data);
+            	 if (msg.data.indexOf('log-') == 0) 
+            		 log('<p>'+msg.data.slice(4));
               }
 
               socket.onclose = function(){
               	message('<p class="event">Socket Status: '+socket.readyState+' (Closed)');
-              	connect();
               }			
 
           } catch(exception){
@@ -36,10 +36,11 @@ $(document).ready(function() {
 
           socket.sendMsg = function(text){
               try{
-            	  if(socket.readyState){
-            		  socket.send(text);
-            		  message('<p class="event">Sent: '+text);
-            	  }
+            	  if(socket.readyState != 1){
+            		  connect();  
+            	  } 
+            	  socket.send(text);
+        		  message('<p class="event">Sent: '+text);
 
               } catch(exception){
                  message('<p class="warning">');

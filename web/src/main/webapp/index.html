@@ -46,9 +46,13 @@
         <div class="well sidebar-nav">
             <ul class="nav nav-list">
           	  	<li class="nav-header">Crawl Execution Queue</li>
-          	  	<li class="divider"></li>
-          	  	<li class="nav-header">Executor Status</li>
-				<li id="msgPanel"></li>
+				{{#each controller.controllers.application.executionQueue}}
+				<li></li>
+				{{else}}
+				<li>empty</li>
+				{{/each}}
+          	  	<!--<li class="divider"></li>
+          	  	<li class="nav-header">Executor Status</li>-->
           	</ul>
         </div> 
     </div> 

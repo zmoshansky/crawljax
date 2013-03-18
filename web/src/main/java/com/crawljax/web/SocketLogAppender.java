@@ -28,7 +28,7 @@ public class SocketLogAppender extends UnsynchronizedAppenderBase<ILoggingEvent>
 	@Override
 	protected void append(ILoggingEvent eventObject) {
 		SimpleDateFormat s = new SimpleDateFormat("HH:mm:ss.SSS");
-		socket.sendText(s.format(new Date(eventObject.getTimeStamp())) + " ["
+		socket.sendText("log-" + s.format(new Date(eventObject.getTimeStamp())) + " ["
 		        + eventObject.getThreadName() + "] " + eventObject.getLevel() + " "
 		        + eventObject.getLoggerName() + " - " + eventObject.getFormattedMessage());
 	}

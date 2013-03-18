@@ -38,6 +38,7 @@ import com.crawljax.oraclecomparator.comparators.ScriptComparator;
 import com.crawljax.oraclecomparator.comparators.SimpleComparator;
 import com.crawljax.oraclecomparator.comparators.StyleComparator;
 import com.crawljax.oraclecomparator.comparators.XPathExpressionComparator;
+import com.crawljax.web.LogWebSocketServlet;
 import com.crawljax.web.model.ClickRule;
 import com.crawljax.web.model.ClickRule.RuleType;
 import com.crawljax.web.model.Configuration;
@@ -63,6 +64,7 @@ public class CrawlRunner {
 	}
 
 	public void queue(int id) {
+		LogWebSocketServlet.sendToAll("queue-" + Integer.toString(id));
 		pool.submit(new CrawlExecution(id));
 	}
 
@@ -76,6 +78,7 @@ public class CrawlRunner {
 		@Override
 		public void run() {
 			Date timestamp = null;
+			LogWebSocketServlet.sendToAll("run-" + Integer.toString(crawlId));
 			MDC.put("crawl_record", Integer.toString(crawlId));
 			try {
 				CrawlRecord record = crawlRecords.findByID(crawlId);
@@ -196,6 +199,7 @@ public class CrawlRunner {
 				pool.shutdown();
 			} finally {
 				MDC.remove("crawl_record");
+				LogWebSocketServlet.sendToAll("end-" + Integer.toString(crawlId));
 			}
 		}
 

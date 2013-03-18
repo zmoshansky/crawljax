@@ -1,4 +1,5 @@
 	App.ConfigListController = Ember.ArrayController.extend({
+		needs: ['application'],
 		itemController: 'configListItem', 
     	sideNavDisabled: function() { 
     		return this.get('content.isLoading'); }.property('content.isLoading')
@@ -87,7 +88,10 @@
     	remove: function(item) { this.content.removeObject(item); }
     });
      
-    App.HistoryListController = Ember.ArrayController.extend({ itemController: 'historyListItem' });
+    App.HistoryListController = Ember.ArrayController.extend({
+    	needs: ['application'],
+    	itemController: 'historyListItem'
+    });
     App.HistoryListItemController = Ember.ObjectController.extend({
     	formatStartTime: function(){ 
     		var startTime = this.get('startTime');
