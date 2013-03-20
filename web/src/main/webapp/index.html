@@ -47,12 +47,10 @@
             <ul class="nav nav-list">
           	  	<li class="nav-header">Crawl Execution Queue</li>
 				{{#each controller.controllers.application.executionQueue}}
-				<li></li>
+				<li><span>{{#linkTo 'history' this}}#{{id}}{{/linkTo}} {{configurationName}} - <i>{{crawlStatus}}</i></span></li>
 				{{else}}
-				<li>empty</li>
+				<li><i>empty</i></li>
 				{{/each}}
-          	  	<!--<li class="divider"></li>
-          	  	<li class="nav-header">Executor Status</li>-->
           	</ul>
         </div> 
     </div> 
@@ -296,6 +294,5 @@
     <script type="text/javascript" src="js/views.js"></script>
     <script type="text/javascript" src="js/controllers.js"></script>
     <script type="text/javascript" src="js/validation.js"></script>
-    <script type="text/javascript" src="js/socket.js"></script>
 </body>
 </html>

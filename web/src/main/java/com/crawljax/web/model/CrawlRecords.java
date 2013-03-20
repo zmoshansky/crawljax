@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.crawljax.web.fs.WorkDirManager;
+import com.crawljax.web.model.CrawlRecord.CrawlStatusType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -37,6 +38,18 @@ public class CrawlRecords {
 				configRecordList.add(r);
 		}
 		return configRecordList;
+	}
+
+	public List<CrawlRecord> getActiveCrawlList() {
+		List<CrawlRecord> recordList = new ArrayList<CrawlRecord>();
+		for (CrawlRecord r : crawlList) {
+			if (r.getCrawlStatus() == CrawlStatusType.queued
+			        || r.getCrawlStatus() == CrawlStatusType.running
+			        || r.getCrawlStatus() == CrawlStatusType.initializing) {
+				recordList.add(0, r);
+			}
+		}
+		return recordList;
 	}
 
 	public CrawlRecord findByID(int id) {

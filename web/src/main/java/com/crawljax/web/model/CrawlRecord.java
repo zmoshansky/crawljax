@@ -10,6 +10,11 @@ public class CrawlRecord {
 	private Date startTime;
 	private long duration;
 	private String outputFolder;
+	private CrawlStatusType crawlStatus = CrawlStatusType.idle;
+
+	public enum CrawlStatusType {
+		idle, queued, initializing, running, success, failure
+	}
 
 	/**
 	 * @return the id
@@ -114,6 +119,21 @@ public class CrawlRecord {
 	 */
 	public void setConfigurationName(String configurationName) {
 		this.configurationName = configurationName;
+	}
+
+	/**
+	 * @return the crawlStatus
+	 */
+	public CrawlStatusType getCrawlStatus() {
+		return crawlStatus;
+	}
+
+	/**
+	 * @param crawlStatus
+	 *            the crawlStatus to set
+	 */
+	public void setCrawlStatus(CrawlStatusType crawlStatus) {
+		this.crawlStatus = crawlStatus;
 	}
 
 }

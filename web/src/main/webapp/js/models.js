@@ -178,11 +178,12 @@ App.CrawlHistory = Ember.Object.extend();
 App.CrawlHistory.reopenClass({
 	isSaving: false,
 	isLoading: false,
-	findAll: function(id){
+	findAll: function(id, active){
 		var allHistory = [];
 		allHistory.set('isLoading', true);
 		var data = '';
 		if (id !== undefined) data = { config: id };
+		if (active) data = { active: true };
 	    $.ajax({
 	      url: '/rest/history',
 	      dataType: 'json',
@@ -199,6 +200,7 @@ App.CrawlHistory.reopenClass({
 	 },
 	 add: function(configId, callback)
 	 {
+		 var record = App.CrawlHistory.create({configurationId: configId});
 		 if (!this.isSaving) {
 			 this.isSaving = true;
 			 $.ajax({
@@ -208,11 +210,13 @@ App.CrawlHistory.reopenClass({
 				 data: configId,
 				 dataType: 'json',
 				 context: this,
-				 success: function(response){ 
+				 success: function(response){
+					 record.setProperties(response);
 					 this.isSaving = false;
 					 if (callback !== undefined) callback(response);
 			 	}
 			 });
 		 }
+		 return record;
 	 }
 });

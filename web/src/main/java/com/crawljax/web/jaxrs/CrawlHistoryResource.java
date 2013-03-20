@@ -38,19 +38,22 @@ public class CrawlHistoryResource {
 	}
 
 	@GET
-	public Response getHistory(@QueryParam("config") String configId) {
+	public Response getHistory(@QueryParam("config") String configId,
+	        @QueryParam("active") Boolean active) {
 		List<CrawlRecord> list;
-		if (configId == null)
-			list = crawlRecords.getCrawlList();
-		else
+		if (configId != null)
 			list = crawlRecords.getCrawlListByConfigID(configId);
+		else if (active != null && active)
+			list = crawlRecords.getActiveCrawlList();
+		else
+			list = crawlRecords.getCrawlList();
 		return Response.ok(list).build();
 	}
 
 	@POST
 	public Response addCrawlRecord(String configId) {
 		CrawlRecord record = crawlRecords.add(configId);
-		runner.queue(record.getId());
+		runner.queue(record);
 		return Response.ok(record).build();
 	}
 

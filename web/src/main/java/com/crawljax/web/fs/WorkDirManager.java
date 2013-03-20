@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.crawljax.web.di.CrawljaxWebModule.OutputFolder;
 import com.crawljax.web.model.Configuration;
 import com.crawljax.web.model.CrawlRecord;
+import com.crawljax.web.model.CrawlRecord.CrawlStatusType;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
@@ -92,7 +93,22 @@ public class WorkDirManager {
 			for (File f : recordFiles) {
 				if (f.isDirectory() && !f.getName().equals("general")) {
 					CrawlRecord c = loadRecord(new File(f, "crawl.json"));
-					records.add(0, c);
+
+					// clean up records that crashed unexpectedly
+					if (c.getCrawlStatus() != CrawlStatusType.success
+					        || c.getCrawlStatus() != CrawlStatusType.failure)
+						c.setCrawlStatus(CrawlStatusType.failure);
+
+					int length = records.size();
+					if (length > 0) {
+						for (int i = 0; i < length; i++) {
+							if (records.get(i).getId() < c.getId()) {
+								records.add(i, c);
+								break;
+							}
+						}
+					} else
+						records.add(c);
 				}
 			}
 		}
@@ -131,7 +147,9 @@ public class WorkDirManager {
 		                + "crawl.log");
 		String content = "";
 		try {
-			content = StringUtils.join(Files.readLines(logFile, Charsets.UTF_8), "<br />");
+			content =
+			        "<p>" + StringUtils.join(Files.readLines(logFile, Charsets.UTF_8), "</p><p>")
+			                + "</p>";
 		} catch (IOException e) {
 			LOG.error("Could not read log", logFile.getName());
 		}

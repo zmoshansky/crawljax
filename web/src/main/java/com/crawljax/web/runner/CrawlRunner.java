@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.MDC;
 
 import com.crawljax.condition.Condition;
@@ -44,6 +45,7 @@ import com.crawljax.web.model.ClickRule.RuleType;
 import com.crawljax.web.model.Configuration;
 import com.crawljax.web.model.Configurations;
 import com.crawljax.web.model.CrawlRecord;
+import com.crawljax.web.model.CrawlRecord.CrawlStatusType;
 import com.crawljax.web.model.CrawlRecords;
 import com.crawljax.web.model.NameValuePair;
 import com.google.inject.Inject;
@@ -54,18 +56,29 @@ public class CrawlRunner {
 	private static final int WORKERS = 2;
 	private final Configurations configurations;
 	private final CrawlRecords crawlRecords;
+	private final ObjectMapper mapper;
 	private final ExecutorService pool;
 
 	@Inject
-	public CrawlRunner(Configurations configurations, CrawlRecords crawlRecords) {
+	public CrawlRunner(Configurations configurations, CrawlRecords crawlRecords,
+	        ObjectMapper mapper) {
 		this.configurations = configurations;
 		this.crawlRecords = crawlRecords;
+		this.mapper = mapper;
 		this.pool = Executors.newFixedThreadPool(WORKERS);
 	}
 
-	public void queue(int id) {
-		LogWebSocketServlet.sendToAll("queue-" + Integer.toString(id));
-		pool.submit(new CrawlExecution(id));
+	public void queue(CrawlRecord record) {
+		int id = record.getId();
+		String json = null;
+		try {
+			record.setCrawlStatus(CrawlStatusType.queued);
+			json = mapper.writeValueAsString(record);
+			LogWebSocketServlet.sendToAll("queue-" + json);
+			pool.submit(new CrawlExecution(id));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private class CrawlExecution implements Runnable {
@@ -78,11 +91,12 @@ public class CrawlRunner {
 		@Override
 		public void run() {
 			Date timestamp = null;
-			LogWebSocketServlet.sendToAll("run-" + Integer.toString(crawlId));
+			CrawlRecord record = crawlRecords.findByID(crawlId);
 			MDC.put("crawl_record", Integer.toString(crawlId));
 			try {
-				CrawlRecord record = crawlRecords.findByID(crawlId);
 				Configuration config = configurations.findByID(record.getConfigurationId());
+				record.setCrawlStatus(CrawlStatusType.initializing);
+				LogWebSocketServlet.sendToAll("init-" + Integer.toString(crawlId));
 
 				// Build Configuration
 				CrawljaxConfigurationBuilder builder =
@@ -178,13 +192,17 @@ public class CrawlRunner {
 				if (config.getComparators().size() > 0)
 					setComparatorsFromConfig(config.getComparators(), builder.crawlRules());
 
+				// Build Crawljax
+				CrawljaxController crawljax = new CrawljaxController(builder.build());
+
 				// Set Timestamps
 				timestamp = new Date();
 				record.setStartTime(timestamp);
+				record.setCrawlStatus(CrawlStatusType.running);
 				crawlRecords.update(record);
+				LogWebSocketServlet.sendToAll("run-" + Integer.toString(crawlId));
 
 				// run Crawljax
-				CrawljaxController crawljax = new CrawljaxController(builder.build());
 				crawljax.run();
 
 				// set duration
@@ -192,14 +210,18 @@ public class CrawlRunner {
 				record.setDuration(duration);
 				config.setLastCrawl(timestamp);
 				config.setLastDuration(duration);
+				record.setCrawlStatus(CrawlStatusType.success);
 				crawlRecords.update(record);
 				configurations.update(config);
+				LogWebSocketServlet.sendToAll("success-" + Integer.toString(crawlId));
 			} catch (Exception e) {
 				e.printStackTrace();
+				record.setCrawlStatus(CrawlStatusType.failure);
+				crawlRecords.update(record);
+				LogWebSocketServlet.sendToAll("fail-" + Integer.toString(crawlId));
 				pool.shutdown();
 			} finally {
 				MDC.remove("crawl_record");
-				LogWebSocketServlet.sendToAll("end-" + Integer.toString(crawlId));
 			}
 		}
 

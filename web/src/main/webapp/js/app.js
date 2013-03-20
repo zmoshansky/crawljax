@@ -15,6 +15,16 @@
    		});
    	});
 
+    App.ApplicationRoute = Ember.Route.extend({
+    	setupController: function(controller, model){
+    		controller.set('executionQueue', App.CrawlHistory.findAll(undefined, true));
+    		if(!("WebSocket" in window)){
+    			alert('Need a Browswer that supports Sockets')
+    		}else{
+    			controller.connectSocket();
+    		}
+    	}
+    });
     
     App.ConfigListRoute = Ember.Route.extend({
       setupController: function(controller, model) {
@@ -99,11 +109,12 @@
     		                                                      App.Link.create({text: "History", target: "#/history"}),
     		                                                      App.Link.create({text: "Crawl"})]);
     		var controller = this.controllerFor('history');
-    		setTimeout(function(){ socket.sendMsg('startlog-' + controller.get('content.id')); }, 0); },
+    		var appController = this.controllerFor('application');
+    		setTimeout(function(){ appController.sendMsg('startlog-' + controller.get('content.id')); }, 0); },
     	deactivate: function() {
     		this.controllerFor('history_list').set('breadcrumb', [App.Link.create({text: "Home", target: "#"}), 
     		                                                      App.Link.create({text: "History"})]);
-    		socket.sendMsg('stoplog'); },
+    		this.controllerFor('application').sendMsg('stoplog'); },
     	serialize: function(object) { return { id: object.id }; }
         //deserialize: function(params) { return App.CrawlHistory.find(params.id); }
     });

@@ -1,3 +1,56 @@
+	App.ApplicationController = Ember.Controller.extend({
+		executionQueue: [],
+		updateQueue: function(id, status){
+			var element = this.executionQueue.find(function(item){
+				return (item.id == id);
+			});
+			if (element != null)
+				element.set('crawlStatus', status);
+		},
+		socket: null,
+		connectSocket: function(){
+			var host = "ws://localhost:8080/socket";
+			try {
+				var controller = this;
+				this.socket = new WebSocket(host);
+				
+				this.socket.onmessage = function(msg){
+	            	 if (msg.data.indexOf('log-') == 0) 
+	            		 $('#logPanel').append('<p>'+msg.data.slice(4)+'</p>');
+	            	 if (msg.data.indexOf('queue-') == 0) {
+	            		 var record = App.CrawlHistory.create({});
+	            	 	 record.setProperties(JSON.parse(msg.data.slice(6)));
+	            		 controller.get('executionQueue').pushObject(record);
+	            	 }
+	            	 if (msg.data.indexOf('init-') == 0)
+	            		 controller.updateQueue(msg.data.slice(5), "initializing");
+	            	 if (msg.data.indexOf('run-') == 0)
+	            		 controller.updateQueue(msg.data.slice(4), "running");
+	            	 if (msg.data.indexOf('fail-') == 0) {
+	            		 controller.updateQueue(msg.data.slice(5), "failure");
+	            		 setTimeout(function(){controller.executionQueue.removeAt(0);}, 5000);
+	            	 }
+	            	 if (msg.data.indexOf('success-') == 0) {
+	            		 controller.updateQueue(msg.data.slice(8), "success");
+	            		 setTimeout(function(){controller.executionQueue.removeAt(0);}, 5000);
+	            	 }
+	            }
+			}catch(exception){
+	             alert('Error'+exception);
+	        }
+		},
+		sendMsg: function(text){
+            try{
+          	  if(this.socket.readyState != 1){
+          		  this.connect();  
+          	  } 
+          	  this.socket.send(text);
+            } catch(exception){
+               alert("Couldn't send message");
+            }
+       }
+	});
+
 	App.ConfigListController = Ember.ArrayController.extend({
 		needs: ['application'],
 		itemController: 'configListItem', 
@@ -31,7 +84,7 @@
 	    		}
 	    		break;
 	    	case "run":
-	    		App.CrawlHistory.add(this.content.id);
+	    		var record = App.CrawlHistory.add(this.content.id);
 	    		break;
 	    	case "save":
 	    		if (validateForm('config_form')) {
